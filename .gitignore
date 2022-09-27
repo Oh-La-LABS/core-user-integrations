@@ -1,0 +1,14 @@
+# Generic ignores
+.vscode
+.gitignore
+.gitmodules
+.DS_Store
+
+# Folders and files which should NOT receive USER updates
+./packages/README.md
+./scripts/README.md
+./tests/README.md
+./templates/
+./LICENSE
+./README.md
+./EXCLUDED_FROM_BACKUPS.txt

@@ -1,0 +1,4 @@
+[submodule "schemas"]
+	path = schemas
+	url = https://github.com/Oh-La-LABS/oll-schemas.git
+	branch = main

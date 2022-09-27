@@ -1,0 +1,1 @@
+This file is just here to remind the user that this folder is excluded from backups on CORE.
