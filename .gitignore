@@ -9,6 +9,7 @@
 ./scripts/README.md
 ./tests/README.md
 ./templates/
+./templates-local/
 ./LICENSE
 ./README.md
 ./EXCLUDED_FROM_BACKUPS.txt
