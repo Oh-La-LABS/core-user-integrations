@@ -5,7 +5,6 @@ location {{manifest.nginx.ui_url}} {
 
     proxy_pass http://127.0.0.1:{{manifest.container.http_port}}{{manifest.nginx.ui_url}};
 
-    include sso/auth.conf;  # Activates SSO for specified route/location
-    include sso/proxy.conf; # Reverse proxy configuration
+    {{nginx.sso.auth_proxy}}
 }
 # code: language=nginx insertSpaces=true tabSize=4

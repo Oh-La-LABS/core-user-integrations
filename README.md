@@ -19,7 +19,7 @@ To clone this repo to CORE for development, first fork it on GitHub, then use Gi
 ## Updating all submodules
 This monorepo is using submodules for schemas. 
 
-Submodules are NOT allowed in packages. Use the manifest for your integration to use a remote git repository.
+Submodules are NOT allowed in packages. Use the manifest for your integration to use a remote git repository (not YET supported).
 
 To update all submodules, run the following in the root of the checked out repository:
 ```

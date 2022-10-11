@@ -1,0 +1,69 @@
+{% if 'default' == manifest.home %}{% 
+set home = "/home/" + manifest.target_user %}{% 
+else %}{% 
+set home = manifest.home %}{% 
+endif 
+%}[Unit]
+Description={{manifest.name_pretty}} in Podman (CORE)
+Requires=init-oll-user.service
+ConditionPathExists=/etc/emmc
+ConditionPathExists=!{{home}}/podman-{{manifest.container.name}}-disabled
+Wants=sso.target
+After=sso.target {{manifest.systemd.systemd_additional_after}}
+{% if manifest.systemd.systemd_additional_before != '' %}
+Before={{manifest.systemd.systemd_additional_before}}
+{% endif %}
+[Service]
+User={{manifest.target_user}}
+Group={{manifest.target_user}}
+Environment=PODMAN_SYSTEMD_UNIT=%n
+
+# Enabling NotifyAccess seems to block container access indefinitely, Type=notify implicitly enables
+# NotifyAcess=main and has the same effect
+
+SyslogIdentifier={{manifest.container.name}}
+Restart={{manifest.systemd.systemd_restart}}
+# For things which has a DB, give them more time...
+TimeoutStopSec={{manifest.systemd.systemd_timeout_stop_sec}}
+TimeoutStartSec={{manifest.systemd.systemd_timeout_start_sec}}
+RestartSec={{manifest.systemd.systemd_restart_sec}}
+
+# To have working logs, set delegate to yes
+Delegate=yes
+# ExecStartPre=+/bin/rm -f {{home}}/%N.pid {{home}}/%N.ctr-id
+{% if manifest.systemd.update_before_start %}
+ExecStartPre=+{{installer.install_type_path}}/bin/cui-{{manifest.name}} --update
+{% endif %}
+ExecStartPre=+-{{installer.install_type_path}}/bin/cui-{{manifest.name}} --prepare
+ExecStartPre=-{{installer.install_type_path}}/bin/cui-{{manifest.name}} --defaults
+{% if manifest.systemd.systemd_exec_start_pre != '' %}
+ExecStartPre={{manifest.systemd.systemd_exec_start_pre}}
+{% endif %}
+# Don't use notify! It hangs podman ps and such!
+# Type=notify
+# ExecStart={{installer.install_type_path}}/bin/cui-{{manifest.name}} --run notify
+# ExecStopPost=/usr/bin/systemd-notify --status=stopped
+
+# Simple works, but we need forking to keep things clean
+# Type=simple
+# ExecStart={{installer.install_type_path}}/bin/cui-{{manifest.name}} --run simple
+
+Type=forking
+ExecStartPre=+-/bin/rm -f {{home}}/%N.pid {{home}}/%N.ctr-id
+ExecStart={{installer.install_type_path}}/bin/cui-{{manifest.name}} --run forking
+{% if manifest.systemd.systemd_exec_stop_post != '' %}
+ExecStartPost={{manifest.systemd.systemd_exec_start_post}}
+{% endif %}
+# ExecStop=/usr/bin/podman stop --ignore -t 10 {{installer.install_type_path}}/bin/cui-{{manifest.name}}
+ExecStop=/usr/bin/podman stop --ignore --cidfile {{home}}/%N.ctr-id -t 10
+ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile {{home}}/%N.ctr-id || true
+{% if manifest.systemd.systemd_exec_stop_post != '' %}
+ExecStopPost={{manifest.systemd.systemd_exec_stop_post}}
+{% endif %}
+# ExecReload=-{{installer.install_type_path}}/bin/cui-{{manifest.name}} --remove -f
+# ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile {{home}}/%N.ctr-id
+PIDFile={{home}}/%N.pid
+
+[Install]
+WantedBy=multi-user.target default.target
+

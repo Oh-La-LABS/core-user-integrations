@@ -1,0 +1,155 @@
+#!/bin/bash
+# Copyright and license available in: /usr/share/doc/ollscripts/copyright
+
+set -o errexit
+set -o pipefail
+set -o nounset
+shopt -s nullglob
+
+# For debugging, use the below
+# set -x
+# set +x
+
+ORIGINAL_PWD="$PWD"
+ORIGINAL_PARAMS="$@"
+
+# Fix potential issues for systemd
+export XDG_RUNTIME_DIR=/run/user/$(id -u)
+
+######################
+# Script Header Init #
+######################
+source /lib/oll/shared-header-init.sh
+
+##############################
+# Default Container Settings #
+##############################
+NAME="{{manifest.name_pretty}}"
+NAME_CLEAN="{{manifest.name}}"
+CONTAINER_NAME="{{manifest.container.name}}"
+# $CONTAINER_SERVER points to container.oh-lalabs.com by default
+CONTAINER_REPO="{{manifest.container.repo}}"
+EXPORT_SERIAL={{manifest.container.export_serial}}
+# PORT_MAP+=("127.0.0.1:1884:1880")     # port for the web interface
+{% for port_map in manifest.container.port_map 
+%}PORT_MAP+=("{{ port_map }}")     # port for the web interface
+{% endfor %}
+# PORT_MAP+=("30000-30010:30000-30010") # additional ports to map
+LISTEN_PORT={{manifest.container.http_port}}                    # This is the port we look for in the logs to know when the service is up
+
+TARGET_USER="{{manifest.target_user}}"
+TARGET_UID=`id -u $TARGET_USER`
+
+# Override HOME
+{% if 'default' == manifest.home 
+%}HOME="/home/$TARGET_USER"
+{% else 
+ %}HOME="{{manifest.home}}"{% 
+ endif %}{% if 'default' == manifest.data_folder 
+%}DATA_FOLDER="$HOME/data/{{manifest.name}}"
+{% else 
+%}DATA_FOLDER="{{manifest.data_folder}}"
+{% endif %}
+# Map folders
+{% for folder_map in manifest.container.folder_map 
+%}FOLDER_MAP+=("{{ folder_map }}")
+{% endfor %}
+# Map Environment Variables
+{% for env_map in manifest.container.env_map 
+%}ENV_MAP+=("{{ env_map }}")
+{% endfor %}
+####################
+# Service settings #
+####################
+# These settings are used to generate the systemd unit file, a task not usually done dynamically, making chages here will have no effect.
+UPDATE_BEFORE_START={{manifest.systemd.update_before_start}}
+SYSTEMD_ADDITIONAL_AFTER="{{manifest.systemd.systemd_additional_after}}"
+SYSTEMD_ADDITIONAL_BEFORE="{{manifest.systemd.systemd_additional_before}}"
+# Possible values: always, on-failure, on-success
+# Always will allow a container, such as z2m, to do a restart and come back...
+SYSTEMD_RESTART="{{manifest.systemd.systemd_restart}}"
+SYSTEMD_RESTART_SEC={{manifest.systemd.systemd_restart_sec}}
+SYSTEMD_TIMEOUT_STOP_SEC={{manifest.systemd.systemd_timeout_stop_sec}}
+SYSTEMD_TIMEOUT_START_SEC={{manifest.systemd.systemd_timeout_start_sec}}
+# ExecStartPost example: +-systemctl restart podman-grafana-configure
+SYSTEMD_EXEC_START_PRE="{{manifest.systemd.systemd_exec_start_pre}}"
+SYSTEMD_EXEC_START_POST="{{manifest.systemd.systemd_exec_start_post}}"
+SYSTEMD_EXEC_STOP_POST="{{manifest.systemd.systemd_exec_stop_post}}"
+PODMAN_TIMEOUT_STOP_SEC={{manifest.systemd.podman_timeout_stop_sec}}
+
+###################
+# Script settings #
+###################
+
+source /lib/oll/shared-podman-script-usage.sh
+
+if [ -s "/lib/oll/user/{{manifest.name}}/lib/podman-script-usage.sh" ]; then
+    source /lib/oll/user/{{manifest.name}}/lib/podman-script-usage.sh
+elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/podman-script-usage.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/podman-script-usage.sh
+fi
+
+### END Script settings ###
+
+# Include the shared header
+source /lib/oll/shared-header.sh
+
+# Include config-overrides, if available
+source /lib/oll/shared-config-functions.sh
+
+#####################
+# Argument Defaults #
+#####################
+if [ -s "/lib/oll/user/{{manifest.name}}/lib/podman-additional-arguments.sh" ]; then
+    source /lib/oll/user/{{manifest.name}}/lib/podman-additional-arguments.sh
+elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/podman-additional-arguments.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/podman-additional-arguments.sh
+fi
+
+source /lib/oll/shared-podman-argument-defaults.sh
+
+info "Running command: $COMMAND"
+
+# Built-in functions which may be of use:
+exit_if_not_emmc
+#exit_if_not_external_media
+#exit_if_root
+# exit_if_not_root
+
+# Include all commands which need root
+source /lib/oll/shared-podman-root-commands.sh
+
+# Make sure we give the group access by default
+umask 007
+
+# This is one of the few commands unique per container
+if [ -s "/lib/oll/user/{{manifest.name}}/lib/prepare-root.sh" ]; then
+    source /lib/oll/user/{{manifest.name}}/lib/prepare-root.sh
+elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/prepare-root.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/prepare-root.sh
+fi
+
+if [ -s "/lib/oll/user/{{manifest.name}}/lib/root-commands.sh" ]; then
+    source /lib/oll/user/{{manifest.name}}/lib/root-commands.sh
+elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/root-commands.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/root-commands.sh
+fi
+
+# Below here we need to become/be the $TARGET_USER to continue
+ensure_is_user $TARGET_UID $TARGET_USER
+
+####### To override default user commands, place them here #######
+
+source /lib/oll/shared-podman-user-commands.sh
+
+if [ -s "/lib/oll/user/{{manifest.name}}/lib/prepare-user.sh" ]; then
+    source /lib/oll/user/{{manifest.name}}/lib/prepare-user.sh
+elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/prepare-user.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/prepare-user.sh
+fi
+
+if [ -s "/lib/oll/user/{{manifest.name}}/lib/user-commands.sh" ]; then
+    source /lib/oll/user/{{manifest.name}}/lib/user-commands.sh
+elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh
+fi

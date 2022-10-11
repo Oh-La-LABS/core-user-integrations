@@ -1,0 +1,105 @@
+{
+  "manifest_version": 1,      // to handle potential breaking changes in the future
+  "name": "",                 
+  "license": "MIT",        // Currently it always has to be MIT for user
+  "name_pretty": "{{manifest.name}} Fill In",          // Will be used as is, may contain space, a-zA-Z0-9, 
+                                // dash(-) and underscore(_). Used for example as icon name.
+                                // Only valid in official mono-repo
+  "version": "0.1.0",           // semver version, NOT the same version as the container,
+                                // increment the version for each release.
+  "last_update": "", // ISO 8601 Date and Time
+  "description": "{{manifest.name}} needs a description.",
+  "keywords": ["auto:user"], // Only valid in official mono-repo
+  "quality": "silver",        
+  "contributors": [
+    {
+      "name": "Set User",
+      "email": "email_here",
+    },
+  ],
+  "copyright": [],
+  "code_owners": ["@gituser"],
+  "iot_class": null,  // Same classification as HA, but it can ALSO be null/undefined when it doesn't apply: 
+                      // https://developers.home-assistant.io/docs/creating_integration_manifest#iot-class
+  "target_user": "oh-la",    // Currently can't be changed, has to be "oh-la", only valid in official mono-repo
+  "home": "default",         // Currently can't be changed, has to be "default", only valid in official mono-repo
+  "data_folder": "default",  // Currently can't be changed, has to be "default", only valid in official mono-repo
+  "container": {  // Set to null for integrations NOT using containers.
+    "name": "{{manifest.name}}",
+    "license": "",
+    "repo": "",
+    "port_map": ["127.0.0.1:{{manifest.container.http_port}}:{{manifest.container.http_port}}"],
+    "http_port": null,                   // This is the port for nginx to proxy to, if more than one port, use custom 
+                                          // nginx templates. If none, set to 0.
+    "export_serial": false,
+    "folder_map": [
+      "$HOME/data/{{manifest.name}}:/data",      // Bash variables are available to use
+      "/etc/ssl/certs:/etc/ssl/certs:ro",
+      "/usr/local/share/ca-certificates:/usr/local/share/ca-certificates:ro",
+      ],
+    "env_map": [
+      "{{env_map.node_extra_ca_certs}}", // Replaced with:
+                                          // "NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt"
+    ]
+  },
+  "systemd": {
+    "generate_template": "default",     // This is currently the ONLY template
+    "update_before_start": false,
+    "systemd_additional_before": "",
+    "systemd_additional_after": "",
+    "systemd_restart": "always",
+    "systemd_restart_sec": 30,
+    "systemd_timeout_stop_sec": 70,
+    "systemd_timeout_start_sec": "10m",
+    "systemd_exec_start_pre": "",
+    "systemd_exec_start_post": "",
+    "systemd_exec_stop_post": "",
+    "podman_timeout_stop_sec": 10,
+  },
+  "nginx": {
+    "config_template": null,  // set to null to ONLY use the config(s) provided in the package, set to a string to 
+                              // generate a config from the named template.
+    "config_enabled": [],     // Where to place enable symlinks, eg ["services-enabled", "services-enabled-port80"]
+                              // Only used when using a template to generate the nginx config.
+    "ports": [],         // Any TCP ports used by this integration inside nginx, set to [] if not using 
+                              // additional TCP ports.
+                              // The port used by nginx has to be unique for the user integration
+                              // and can't be a port below 80. User integrations using the same port
+                              // as another user integration will, in general, not be accepted into the mono repo.
+    "ui_url": "/pods/direct/{{manifest.name}}/",      // set to null if there is none,
+    "test_url": "/pods/direct/{{manifest.name}}/",    // set to null if there is none. Used for checking if the service is up.
+    "sso_urls": ["/pods/direct/{{manifest.name}}/"],  // Any URLs behind SSO used, such as the UI URL
+    "unprotected_urls": [],
+      // Any URLs NOT protected by SSO used, such as a webhooks or APIs.
+  },
+  "data": { // Settings for the data folder
+    "owner_user": "default",  // currently this user is called "oll-homebridge", but will be renamed.
+                              // this is the non-root user used inside the container.
+    "owner_group": "oh-la",   // this equals to the root user inside the container.
+    "chown_from_root": true,  // Will make any file or folder in data/ owned by root to be 
+                              // owned by target_user.
+  },
+  "secrets": {  // These are settings for auto-generated INTERNAL secrets to use between and 
+    // on services. They are NOT stored encrypted, just with a minimal set of file permissions.
+    // These can be things such as unique seeds used for sessions variables, internal DB user 
+    // passwords etc. For external services such as AWS, this is NOT where things should go!
+    // "hi": 34,
+    // "hi2": 1
+  },
+  "user_input": {
+  },
+  "variables": {
+  },
+  "requirements": {
+    "marjebian": ">=1.8.2.0727",             // marjebian is a special qualifier
+    // Only oll/cui packages can be specified here
+    "oll": {},
+    "cui": {},
+    "apt": {},
+    "pip3": {},
+    "npm": {}
+  },
+  "mqtt": {},
+  "supported_brands": {},
+  "discovery": {},
+}
