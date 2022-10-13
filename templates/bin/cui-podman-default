@@ -58,6 +58,10 @@ TARGET_UID=`id -u $TARGET_USER`
 {% for env_map in manifest.container.env_map 
 %}ENV_MAP+=("{{ env_map }}")
 {% endfor %}
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/custom-settings.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/custom-settings.sh
+fi
+
 ####################
 # Service settings #
 ####################
@@ -83,9 +87,7 @@ PODMAN_TIMEOUT_STOP_SEC={{manifest.systemd.podman_timeout_stop_sec}}
 
 source /lib/oll/shared-podman-script-usage.sh
 
-if [ -s "/lib/oll/user/{{manifest.name}}/lib/podman-script-usage.sh" ]; then
-    source /lib/oll/user/{{manifest.name}}/lib/podman-script-usage.sh
-elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/podman-script-usage.sh" ]; then
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/podman-script-usage.sh" ]; then
     source /data/core/integrations/user/{{manifest.name}}/lib/podman-script-usage.sh
 fi
 
@@ -100,9 +102,7 @@ source /lib/oll/shared-config-functions.sh
 #####################
 # Argument Defaults #
 #####################
-if [ -s "/lib/oll/user/{{manifest.name}}/lib/podman-additional-arguments.sh" ]; then
-    source /lib/oll/user/{{manifest.name}}/lib/podman-additional-arguments.sh
-elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/podman-additional-arguments.sh" ]; then
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/podman-additional-arguments.sh" ]; then
     source /data/core/integrations/user/{{manifest.name}}/lib/podman-additional-arguments.sh
 fi
 
@@ -123,15 +123,11 @@ source /lib/oll/shared-podman-root-commands.sh
 umask 007
 
 # This is one of the few commands unique per container
-if [ -s "/lib/oll/user/{{manifest.name}}/lib/prepare-root.sh" ]; then
-    source /lib/oll/user/{{manifest.name}}/lib/prepare-root.sh
-elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/prepare-root.sh" ]; then
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/prepare-root.sh" ]; then
     source /data/core/integrations/user/{{manifest.name}}/lib/prepare-root.sh
 fi
 
-if [ -s "/lib/oll/user/{{manifest.name}}/lib/root-commands.sh" ]; then
-    source /lib/oll/user/{{manifest.name}}/lib/root-commands.sh
-elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/root-commands.sh" ]; then
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/root-commands.sh" ]; then
     source /data/core/integrations/user/{{manifest.name}}/lib/root-commands.sh
 fi
 
@@ -139,17 +135,16 @@ fi
 ensure_is_user $TARGET_UID $TARGET_USER
 
 ####### To override default user commands, place them here #######
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/user-commands-pre-builtin.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/user-commands-pre-builtin.sh
+fi
 
 source /lib/oll/shared-podman-user-commands.sh
 
-if [ -s "/lib/oll/user/{{manifest.name}}/lib/prepare-user.sh" ]; then
-    source /lib/oll/user/{{manifest.name}}/lib/prepare-user.sh
-elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/prepare-user.sh" ]; then
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/prepare-user.sh" ]; then
     source /data/core/integrations/user/{{manifest.name}}/lib/prepare-user.sh
 fi
 
-if [ -s "/lib/oll/user/{{manifest.name}}/lib/user-commands.sh" ]; then
-    source /lib/oll/user/{{manifest.name}}/lib/user-commands.sh
-elif [ -s "/data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh" ]; then
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh" ]; then
     source /data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh
 fi
