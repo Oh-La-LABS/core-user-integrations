@@ -49,14 +49,14 @@ ExecStartPre={{manifest.systemd.systemd_exec_start_pre}}
 # ExecStart={{installer.install_type_path}}/bin/cui-{{manifest.name}} --run simple
 
 Type=forking
-ExecStartPre=+-/bin/rm -f {{home}}/%N.pid {{home}}/%N.ctr-id
+ExecStartPre=+-/bin/rm -f {{home}}/.systemd/%N.pid {{home}}/.systemd/%N.ctr-id
 ExecStart={{installer.install_type_path}}/bin/cui-{{manifest.name}} --run forking
 {% if manifest.systemd.systemd_exec_stop_post != '' %}
 ExecStartPost={{manifest.systemd.systemd_exec_start_post}}
 {% endif %}
 # ExecStop=/usr/bin/podman stop --ignore -t 10 {{installer.install_type_path}}/bin/cui-{{manifest.name}}
-ExecStop=/usr/bin/podman stop --ignore --cidfile {{home}}/%N.ctr-id -t 10
-ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile {{home}}/%N.ctr-id || true
+ExecStop=/usr/bin/podman stop --ignore --cidfile {{home}}/.systemd/%N.ctr-id -t 10
+ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile {{home}}/.systemd/%N.ctr-id || true
 {% if manifest.systemd.systemd_exec_stop_post != '' %}
 ExecStopPost={{manifest.systemd.systemd_exec_stop_post}}
 {% endif %}
@@ -66,4 +66,3 @@ PIDFile={{home}}/%N.pid
 
 [Install]
 WantedBy=multi-user.target default.target
-

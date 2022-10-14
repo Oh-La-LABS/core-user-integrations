@@ -30,7 +30,7 @@ CONTAINER_NAME="{{manifest.container.name}}"
 # $CONTAINER_SERVER points to container.oh-lalabs.com by default
 CONTAINER_REPO="{{manifest.container.repo}}"
 EXPORT_SERIAL={{manifest.container.export_serial}}
-# PORT_MAP+=("127.0.0.1:1884:1880")     # port for the web interface
+
 {% for port_map in manifest.container.port_map 
 %}PORT_MAP+=("{{ port_map }}")     # port for the web interface
 {% endfor %}
@@ -61,6 +61,29 @@ TARGET_UID=`id -u $TARGET_USER`
 if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/custom-settings.sh" ]; then
     source /data/core/integrations/user/{{manifest.name}}/lib/custom-settings.sh
 fi
+
+####################
+# Integration Data #
+####################
+INTEGRATION_LICENSE="{{manifest.license}}"
+INTEGRATION_VERSION="{{manifest.version}}"
+INTEGRATION_DESCRIPTION="{{manifest.description}}"
+INTEGRATION_CONTAINER_LICENSE="{{manifest.container.license}}"
+
+INTEGRATION_CONTRIBUTORS_NAME=()
+INTEGRATION_CONTRIBUTORS_EMAIL=()
+{% for contrib in manifest.contributors
+%}INTEGRATION_CONTRIBUTORS_NAME+=("{{ contrib.name }}")
+INTEGRATION_CONTRIBUTORS_EMAIL+=("{{ contrib.email }}")
+{% endfor %}
+INTEGRATION_COPYRIGHT=()
+{% for copyright in manifest.copyright
+%}INTEGRATION_COPYRIGHT+=("{{ copyright }}")
+{% endfor %}
+INTEGRATION_COPY_OWNERS=()
+{% for code_owner in manifest.code_owners
+%}INTEGRATION_COPY_OWNERS+=("{{ code_owner }}")
+{% endfor %}
 
 ####################
 # Service settings #
