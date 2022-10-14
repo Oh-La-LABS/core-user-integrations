@@ -30,7 +30,6 @@ RestartSec={{manifest.systemd.systemd_restart_sec}}
 
 # To have working logs, set delegate to yes
 Delegate=yes
-# ExecStartPre=+/bin/rm -f {{home}}/%N.pid {{home}}/%N.ctr-id
 {% if manifest.systemd.update_before_start %}
 ExecStartPre=+{{installer.install_type_path}}/bin/cui-{{manifest.name}} --update
 {% endif %}
