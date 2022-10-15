@@ -70,6 +70,7 @@ location ^~ /pods/direct/{{manifest.name}} {
     # Fix WebPush action URL:
     sub_filter 'actionUrl: payload' 'actionUrl: \'/$app\' + payload';
 
+    sub_filter '"/tv' '"/$app/tv';
     sub_filter '"/person' '"/$app/person';
     sub_filter '"/collection' '"/$app/collection';
     sub_filter '"/discover' '"/$app/discover';
@@ -77,13 +78,13 @@ location ^~ /pods/direct/{{manifest.name}} {
     sub_filter '"/issues' '"/$app/issues';
     sub_filter '"/site.webmanifest' '"/$app/site.webmanifest';
     # Setting settings paths so that they don't match the generic replace
-    sub_filter 'route:"/settings/main' 'route:"/settings/main';
-    sub_filter 'regex:/^\/settings\/main' 'regex:/^\/settings\/main';
+    
+    # For routes in /profile
     sub_filter 'route:"/settings/password' 'route:"/settings/password';
     sub_filter 'regex:/^\/settings\/password' 'regex:/^\/settings\/password';
     sub_filter 'route:"/settings/permissions' 'route:"/settings/permissions';
     sub_filter 'regex:/^\/settings\/permissions' 'regex:/^\/settings\/permissions';
-                
+    sub_filter 'route:"/settings/main",regex:/\/settings(\/main)?' 'route:"/settings/main",regex:/\/settings(\/main)?';            
     sub_filter 'route:"/settings/notifications/webpush",regex:/\/settings\/notifications\/webpush/,' 'route:"/settings/notifications/webpush",regex:/\/settings\/notifications\/webpush/,';
     sub_filter 'route:"/settings/notifications/pushbullet",regex:/\/settings\/notifications\/pushbullet/}' 'route:"/settings/notifications/pushbullet",regex:/\/settings\/notifications\/pushbullet/}';
     sub_filter 'route:"/settings/notifications/pushover",regex:/\/settings\/notifications\/pushover/}' 'route:"/settings/notifications/pushover",regex:/\/settings\/notifications\/pushover/}';
