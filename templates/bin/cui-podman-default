@@ -29,7 +29,7 @@ NAME_CLEAN="{{manifest.name}}"
 CONTAINER_NAME="{{manifest.container.name}}"
 # $CONTAINER_SERVER points to container.oh-lalabs.com by default
 CONTAINER_REPO="{{manifest.container.repo}}"
-EXPORT_SERIAL={{manifest.container.export_serial}}
+EXPORT_SERIAL={{manifest.container.export_serial|lower}}
 
 {% for port_map in manifest.container.port_map 
 %}PORT_MAP+=("{{ port_map }}")     # port for the web interface
@@ -89,7 +89,7 @@ INTEGRATION_COPY_OWNERS=()
 # Service settings #
 ####################
 # These settings are used to generate the systemd unit file, a task not usually done dynamically, making chages here will have no effect.
-UPDATE_BEFORE_START={{manifest.systemd.update_before_start}}
+UPDATE_BEFORE_START={{manifest.systemd.update_before_start|lower}}
 SYSTEMD_ADDITIONAL_AFTER="{{manifest.systemd.systemd_additional_after}}"
 SYSTEMD_ADDITIONAL_BEFORE="{{manifest.systemd.systemd_additional_before}}"
 # Possible values: always, on-failure, on-success

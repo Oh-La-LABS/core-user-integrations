@@ -11,6 +11,7 @@ See the following locations for related information:
 # Basic Usage
 The command which controls this User Integration is "cui-{{manifest.name}}". 
 If the external documentation truly is good and there is no need for more, then keep this brief. Ideally it should be possible to get started with an Integration without having to read more than this README.
+For instructions on how to include images in this README, see [Collective-DOCS](https://docs.oh-lalabs.com).
 It accepts all the standard cui-command parameters. For more information run "cui-{{manifest.name}} --help".
 
 The URL to this Integration is:

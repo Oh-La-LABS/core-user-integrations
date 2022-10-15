@@ -60,8 +60,8 @@ ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile {{home}}/.systemd/%N.ctr-i
 ExecStopPost={{manifest.systemd.systemd_exec_stop_post}}
 {% endif %}
 # ExecReload=-{{installer.install_type_path}}/bin/cui-{{manifest.name}} --remove -f
-# ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile {{home}}/%N.ctr-id
-PIDFile={{home}}/%N.pid
+# ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile {{home}}/.systemd/%N.ctr-id
+PIDFile={{home}}/.systemd/%N.pid
 
 [Install]
 WantedBy=multi-user.target default.target
