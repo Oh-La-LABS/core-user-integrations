@@ -24,23 +24,10 @@
   "target_user": "oh-la",
   "home": "default",
   "data_folder": "default",
-  "container": {
-    "name": "{{manifest.name}}",
-    "license": "",
-    "repo": "",
-    "port_map": [
-      "127.0.0.1:{{manifest.container.http_port}}:{{manifest.container.http_port}}"
-    ],
-    "http_port": null,
-    "export_serial": false,
-    "folder_map": [
-      "$HOME/data/{{manifest.name}}:/data",
-      "/etc/ssl/certs:/etc/ssl/certs:ro",
-      "/usr/local/share/ca-certificates:/usr/local/share/ca-certificates:ro"
-    ],
-    "env_map": [
-      "{{env_map.node_extra_ca_certs}},PUID=1000,PGID=1000"
-    ]
+  "local": {
+    "tcp_ports": [],
+    "udp_ports": [],
+    "http_port": null
   },
   "systemd": {
     "generate_template": "default",
@@ -86,5 +73,5 @@
   "mqtt": {},
   "supported_brands": {},
   "discovery": {},
-  "manifest_sha1": "b122fb16d9d544c7f0d6c1a03bd7e7a8ca275886"
+  "manifest_sha1": "c76a8592a470b9ff6f7aa5310d73dcd1ee59e0ce"
 }

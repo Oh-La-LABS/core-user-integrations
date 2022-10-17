@@ -24,24 +24,11 @@
   "target_user": "oh-la",    // Currently can't be changed, has to be "oh-la", only valid in official mono-repo
   "home": "default",         // Currently can't be changed, has to be "default", only valid in official mono-repo
   "data_folder": "default",  // Currently can't be changed, has to be "default", only valid in official mono-repo
-  "container": {  // Set to null for integrations NOT using containers.
-    "name": "{{manifest.name}}",
-    "license": "",
-    "repo": "",
-    "port_map": ["127.0.0.1:{{manifest.container.http_port}}:{{manifest.container.http_port}}"],
-    "http_port": null,                   // This is the port for nginx to proxy to, if more than one port, use custom 
-                                          // nginx templates. If none, set to 0.
-    "export_serial": false,
-    "folder_map": [
-      "$HOME/data/{{manifest.name}}:/data",      // Bash variables are available to use
-      "/etc/ssl/certs:/etc/ssl/certs:ro",
-      "/usr/local/share/ca-certificates:/usr/local/share/ca-certificates:ro",
-      ],
-    "env_map": [
-      "{{env_map.node_extra_ca_certs}},PUID=1000,PGID=1000", // Replaced with:
-                                          // "NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt"
-    ]
-  },
+  "local": {
+      tcp_ports: [], // TCP ports used by the service
+      udp_ports: [],                                // UDP ports used by the service
+      http_port: null,                              // If the service provides http on a port, set it here and in tcp_ports. If none, set to 0.
+    },
   "systemd": {
     "generate_template": "default",     // This is currently the ONLY template
     "update_before_start": false,

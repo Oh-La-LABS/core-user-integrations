@@ -11,7 +11,7 @@
 ## Example:
 if [ "$COMMAND" == "prepare" ]; then
   if is_root; then
-    # info "Executing the first part of prepare as root"
+    info "Executing the first part of prepare as root"
     
     # mkdir -p $DATA_FOLDER/etc
     # umask 0037

@@ -1,24 +1,30 @@
 {
   "manifest_version": 1,
-  "name": "",
+  "name": "tautulli",
   "license": "MIT",
-  "name_pretty": "{{manifest.name}} Fill In",
+  "name_pretty": "Tautulli",
   "version": "0.1.0",
-  "last_update": "",
-  "description": "{{manifest.name}} needs a description.",
+  "last_update": "2022-10-17T07:31:59+00:00",
+  "description": "Tautulli is a 3rd party application that you can run alongside your Plex Media Server to monitor activity and track various statistics.",
   "keywords": [
-    "auto:user"
+    "auto:container",
+    "auto:silver",
+    "auto:tautulli",
+    "auto:user-integration"
   ],
-  "quality": null,
+  "quality": "silver",
   "contributors": [
     {
-      "name": "Set User",
-      "email": "email_here"
+      "name": "Markus Liljergren",
+      "email": "markus@oh-lalabs.com"
     }
   ],
-  "copyright": [],
+  "copyright": [
+    "Set User"
+  ],
   "code_owners": [
-    "@gituser"
+    "@markus-li",
+    "@oh-la-labs"
   ],
   "iot_class": null,
   "target_user": "oh-la",
@@ -26,20 +32,22 @@
   "data_folder": "default",
   "container": {
     "name": "{{manifest.name}}",
-    "license": "",
-    "repo": "",
+    "license": "GPL-3.0",
+    "repo": "lscr.io/linuxserver/tautulli:latest",
     "port_map": [
-      "127.0.0.1:{{manifest.container.http_port}}:{{manifest.container.http_port}}"
+      "127.0.0.1:{{manifest.container.http_port}}:8181"
     ],
-    "http_port": null,
+    "http_port": 8191,
     "export_serial": false,
     "folder_map": [
-      "$HOME/data/{{manifest.name}}:/data",
+      "$HOME/data/{{manifest.name}}/config:/config",
       "/etc/ssl/certs:/etc/ssl/certs:ro",
       "/usr/local/share/ca-certificates:/usr/local/share/ca-certificates:ro"
     ],
     "env_map": [
-      "{{env_map.node_extra_ca_certs}},PUID=1000,PGID=1000"
+      "{{env_map.node_extra_ca_certs}}",
+      "PUID=1000",
+      "PGID=1000"
     ]
   },
   "systemd": {
@@ -57,7 +65,7 @@
     "podman_timeout_stop_sec": 10
   },
   "nginx": {
-    "config_template": null,
+    "config_template": "",
     "config_enabled": [],
     "ports": [],
     "ui_url": "/pods/direct/{{manifest.name}}/",
@@ -86,5 +94,5 @@
   "mqtt": {},
   "supported_brands": {},
   "discovery": {},
-  "manifest_sha1": "b122fb16d9d544c7f0d6c1a03bd7e7a8ca275886"
+  "manifest_sha1": "9f390a12230fd7ecfd2d785937121190f1231203"
 }

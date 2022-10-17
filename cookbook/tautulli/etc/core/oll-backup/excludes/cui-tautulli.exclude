@@ -1,0 +1,4 @@
+## oll-tautulli related files excluded from backups
+##
+/data/root/home/oh-la/data/tautulli/config/cache
+/data/root/home/oh-la/data/tautulli/config/logs
