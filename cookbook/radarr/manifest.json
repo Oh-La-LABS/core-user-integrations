@@ -1,0 +1,101 @@
+{
+  "manifest_version": 1,
+  "name": "radarr",
+  "license": "MIT",
+  "name_pretty": "Radarr",
+  "version": "0.1.0",
+  "last_update": "2022-10-17T14:37:13+00:00",
+  "description": "Radarr is a movie collection manager for Usenet and BitTorrent users.",
+  "keywords": [
+    "auto:container",
+    "auto:radarr",
+    "auto:user-integration"
+  ],
+  "quality": null,
+  "contributors": [
+    {
+      "name": "Markus Liljergren",
+      "email": "markus@oh-lalabs.com"
+    }
+  ],
+  "copyright": [
+    "Markus Liljergren"
+  ],
+  "code_owners": [
+    "@markus-li",
+    "@oh-la-labs"
+  ],
+  "iot_class": null,
+  "target_user": "oh-la",
+  "home": "default",
+  "data_folder": "default",
+  "container": {
+    "name": "{{manifest.name}}",
+    "license": "GPLv3",
+    "repo": "lscr.io/linuxserver/radarr:latest",
+    "port_map": [
+      "127.0.0.1:{{manifest.container.http_port}}:7878"
+    ],
+    "http_port": 8911,
+    "export_serial": false,
+    "folder_map": [
+      "$HOME/data/{{manifest.name}}/config:/config",
+      "/mnt:/mnt",
+      "/etc/ssl/certs:/etc/ssl/certs:ro",
+      "/usr/local/share/ca-certificates:/usr/local/share/ca-certificates:ro"
+    ],
+    "env_map": [
+      "{{env_map.node_extra_ca_certs}}",
+      "PUID=1000",
+      "PGID=1000",
+      "UMASK=002"
+    ]
+  },
+  "systemd": {
+    "generate_template": "default",
+    "update_before_start": false,
+    "systemd_additional_before": "",
+    "systemd_additional_after": "",
+    "systemd_restart": "always",
+    "systemd_restart_sec": 30,
+    "systemd_timeout_stop_sec": 70,
+    "systemd_timeout_start_sec": "10m",
+    "systemd_exec_start_pre": "",
+    "systemd_exec_start_post": "",
+    "systemd_exec_stop_post": "",
+    "podman_timeout_stop_sec": 10
+  },
+  "nginx": {
+    "config_template": null,
+    "config_enabled": [],
+    "ports": [],
+    "ui_url": "/pods/direct/{{manifest.name}}",
+    "test_url": "/pods/direct/{{manifest.name}}",
+    "sso_urls": [
+      "/pods/direct/{{manifest.name}}"
+    ],
+    "unprotected_urls": [
+      "/pods/direct/{{manifest.name}}/api"
+    ]
+  },
+  "data": {
+    "owner_user": "default",
+    "owner_group": "oh-la",
+    "chown_from_root": true
+  },
+  "secrets": {},
+  "user_input": {},
+  "variables": {},
+  "requirements": {
+    "marjebian": ">=1.8.2.0727",
+    "oll": {},
+    "cui": {},
+    "apt": {},
+    "pip3": {},
+    "npm": {}
+  },
+  "mqtt": {},
+  "supported_brands": {},
+  "discovery": {},
+  "manifest_sha1": "f0f3aa46449aaae95181b0888da29e195c78ec5d"
+}
