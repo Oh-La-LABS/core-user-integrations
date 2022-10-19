@@ -1,0 +1,10 @@
+## NOTE: This file is NOT enabled by default and is ONLY needed if API with SSO from 
+##       OUTSIDE CORE is needed. Internally the API is available without SSO on
+##       "10.10.2.1".
+location {{manifest.nginx.ui_url}}/api {
+    set $service_unit "podman-{{manifest.container.name}}";
+    set $service_name_pretty "{{manifest.name_pretty}} API";
+    
+    proxy_pass http://127.0.0.1:{{manifest.container.http_port}}{{manifest.nginx.ui_url}}/api;
+}
+# code: language=nginx insertSpaces=true tabSize=4

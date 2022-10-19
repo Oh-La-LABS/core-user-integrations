@@ -1,0 +1,17 @@
+{% macro rand() -%}{% for number in range(8) %}{{ "%04x" | format( range(0,65536)| random )}}{% endfor %}{%- endmacro %}<Config>
+  <LogLevel>info</LogLevel>
+  <EnableSsl>False</EnableSsl>
+  <Port>8989</Port>
+  <SslPort>9898</SslPort>
+  <UrlBase>{{manifest.nginx.ui_url}}</UrlBase>
+  <BindAddress>*</BindAddress>
+  <ApiKey>{{rand()}}</ApiKey>
+  <AuthenticationMethod>None</AuthenticationMethod>
+  <UpdateMechanism>Docker</UpdateMechanism>
+  <LaunchBrowser>False</LaunchBrowser>
+  <Branch>main</Branch>
+  <SslCertHash></SslCertHash>
+  <InstanceName>{{manifest.name_pretty}}</InstanceName>
+  <SyslogPort>514</SyslogPort>
+  <AnalyticsEnabled>False</AnalyticsEnabled>
+</Config>
