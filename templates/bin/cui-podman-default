@@ -173,3 +173,5 @@ fi
 if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh" ]; then
     source /data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh
 fi
+
+exit 0

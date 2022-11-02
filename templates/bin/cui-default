@@ -276,3 +276,4 @@ if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh" ];
     source /data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh
 fi
 
+exit 0
