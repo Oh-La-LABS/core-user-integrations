@@ -1,0 +1,278 @@
+#!/bin/bash
+# Copyright and license available in: /usr/share/doc/ollscripts/copyright
+
+set -o errexit
+set -o pipefail
+set -o nounset
+shopt -s nullglob
+
+# For debugging, use the below
+# set -x
+# set +x
+
+ORIGINAL_PWD="$PWD"
+ORIGINAL_PARAMS="$@"
+
+# https://www.reddit.com/r/podman/comments/gsi8bo/is_this_the_right_way_to_update_podman_containers/
+# https://medium.com/devops-dudes/how-to-setup-root-less-podman-containers-efd109fa4e0d
+# https://github.com/containers/podman/issues/6940
+
+# Fix potential issues for systemd
+export XDG_RUNTIME_DIR=/run/user/$(id -u)
+
+######################
+# Script Header Init #
+######################
+source /lib/oll/shared-header-init.sh
+# NOTE: Override SCRIPT_NAME before source if a different default is needed than the filename of the script!
+
+####################################
+# Default Systemd Service Settings #
+####################################
+
+# This script doesn't "belong" to a user, use the main CORE folder in /etc
+{% if 'default' == manifest.data_folder 
+%}DATA_FOLDER="/etc/core/{{manifest.name}}"
+{% else 
+%}DATA_FOLDER="{{manifest.data_folder}}"
+{% endif %}
+
+NAME="{{manifest.name_pretty}}"
+NAME_CLEAN="{{manifest.name}}"
+SERVICE_NAME="cui-{{manifest.name}}.service"
+
+TARGET_USER="{{manifest.target_user}}"
+TARGET_UID=`id -u $TARGET_USER`
+
+# In this script we need these functions early
+source /lib/oll/shared-functions.sh
+
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/custom-settings.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/custom-settings.sh
+fi
+
+if [ $(service_exists $SERVICE_NAME; echo $?) == "0" ]; then
+    error "The service \"$SERVICE_NAME\" doesn't exist! Is the service \"$NAME\" correct? Aborting..."
+fi
+
+####################
+# Service settings #
+####################
+# These settings are used to generate the systemd unit file, a task NOT performed 
+# based on the data here, making changes here will have no effect. The systemd
+# file is generated from the manifest.json5 content.
+UPDATE_BEFORE_START={{manifest.systemd.update_before_start|lower}}
+SYSTEMD_ADDITIONAL_AFTER="{{manifest.systemd.systemd_additional_after|safe}}"
+SYSTEMD_ADDITIONAL_BEFORE="{{manifest.systemd.systemd_additional_before|safe}}"
+# Possible values: always, on-failure, on-success
+# Always will allow a container, such as z2m, to do a restart and come back...
+SYSTEMD_RESTART="{{manifest.systemd.systemd_restart}}"
+SYSTEMD_RESTART_SEC={{manifest.systemd.systemd_restart_sec}}
+SYSTEMD_TIMEOUT_STOP_SEC={{manifest.systemd.systemd_timeout_stop_sec}}
+SYSTEMD_TIMEOUT_START_SEC={{manifest.systemd.systemd_timeout_start_sec}}
+# ExecStartPost example: +-systemctl restart podman-grafana-configure
+SYSTEMD_EXEC_START_PRE="{{manifest.systemd.systemd_exec_start_pre|safe}}"
+SYSTEMD_EXEC_START_POST="{{manifest.systemd.systemd_exec_start_post|safe}}"
+SYSTEMD_EXEC_STOP_POST="{{manifest.systemd.systemd_exec_stop_post|safe}}"
+PODMAN_TIMEOUT_STOP_SEC={{manifest.systemd.podman_timeout_stop_sec}}
+
+###################
+# Script settings #
+###################
+
+SCRIPT_USAGE[0]="$SCRIPT_NAME [OPTION]"
+SCRIPT_USAGE[1]="$SCRIPT_NAME [--start|--stop|--status|--logs|--enable|--help]"
+SCRIPT_USAGE[2]="Manages the $NAME systemd service on CORE."
+
+# If a long argument name is set, it needs to be the selector for SCRIPT_ARG_VAR and SCRIPT_ARG_DESC
+
+SCRIPT_ARG+=("s,start")
+SCRIPT_ARG_DESC["start"]="Start the service"
+
+SCRIPT_ARG+=("p,stop")
+SCRIPT_ARG_DESC["stop"]="Stop the service"
+
+SCRIPT_ARG+=("e,restart")
+SCRIPT_ARG_DESC["restart"]="Restart the service"
+
+SCRIPT_ARG+=("enable")
+SCRIPT_ARG_DESC["enable"]="Enable the service to start automatically at boot"
+
+SCRIPT_ARG+=("disable")
+SCRIPT_ARG_DESC["disable"]="Disable the service to prevent it from starting automatically at boot"
+
+SCRIPT_ARG+=("status")
+SCRIPT_ARG_DESC["status"]="Status of the service"
+
+SCRIPT_ARG+=("l,logs")
+SCRIPT_ARG_DESC["logs"]="The service logs"
+
+SCRIPT_ARG+=("n,lines")
+SCRIPT_ARG_VAR["lines"]="log_lines"
+SCRIPT_ARG_DESC["lines"]="Can be used to override the default number of log lines to display. Default: 150 lines"
+
+SCRIPT_ARG+=("prepare")
+SCRIPT_ARG_DESC["prepare"]="Prepare file and folder permissions as well as create/update any files needed for running the service."
+
+SCRIPT_ARG+=("run")
+SCRIPT_ARG_DESC["run"]="SYSTEMD SERVICE ONLY: Run the service command (DON'T run this manually, use --start)"
+
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/script-usage.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/script-usage.sh
+fi
+
+SCRIPT_ARG+=("h,help")
+SCRIPT_ARG_DESC["help"]="Print this help text"
+
+SCRIPT_EXTRA_TEXT="The systemd service controlled by this command is \"${SERVICE_NAME}\"."
+
+### END Script settings ###
+
+# Include the shared header
+source /lib/oll/shared-header.sh
+
+# Include config-overrides, if available
+source /lib/oll/shared-config-functions.sh
+
+##############################
+# Parser Generator Functions #
+##############################
+# --- Uncomment one of these to generate a template based on your Options defined above ---
+# print_template_parser "SINGLE"
+# print_template_parser "MULTIPLE"
+# print_usage
+# exit 0
+
+#####################
+# Argument Defaults #
+#####################
+COMMAND=""
+LOG_LINES=150
+
+# Process the passed arguments
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/additional-arguments.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/additional-arguments.sh
+fi
+
+while true; do
+  case ${1} in
+       --stop)                     COMMAND="stop"; shift 1;;
+       --start)                    COMMAND="start"; shift 1;;
+       --run)                    COMMAND="run"; shift 1;;
+       --restart)                  COMMAND="restart"; shift 1;;
+       --status)                   COMMAND="status"; shift 1;;
+       --logs)                     COMMAND="logs"; shift 1;;
+       -n|--lines)                 COMMAND="logs"; LOG_LINES="${2}"; shift 2;;
+       --disable)                  COMMAND="disable"; shift 1;;
+       --enable)                   COMMAND="enable"; shift 1;;
+       --prepare)                  COMMAND="prepare"; shift 1;;
+    -h|--help)                     print_usage && exit 0;;
+    *)                             additional_arguments "$@" && break || shift $?;;
+  esac
+done
+
+# Keep stdout clean!
+>&2 info "Running command: $COMMAND"
+
+# Built-in functions which may be of use:
+exit_if_not_emmc
+#exit_if_not_external_media
+#exit_if_root
+# exit_if_not_root
+
+# Include all commands which need root
+# Make sure we give the group access by default
+umask 007
+
+# This is one of the few commands unique per container
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/prepare-root.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/prepare-root.sh
+fi
+
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/root-commands.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/root-commands.sh
+fi
+
+if [ "$COMMAND" == "start" ]; then
+  exit_if_not_root
+  info "Starting the ${NAME} service..."
+  systemctl start ${SERVICE_NAME}
+  info "Done!"
+  exit 0
+fi
+
+if [ "$COMMAND" == "stop" ]; then
+  exit_if_not_root
+  info "Stopping the ${NAME} service..."
+  systemctl stop ${SERVICE_NAME}
+  info "Done!"
+  exit 0
+fi
+
+if [ "$COMMAND" == "enable" ]; then
+  exit_if_not_root
+  info "Enabling the ${NAME} service..."
+  rm -f $DATA_FOLDER/service-${NAME_CLEAN}-disabled 2> /dev/null || echo -n
+  systemctl enable ${SERVICE_NAME} &
+  info "Done!"
+  exit 0
+fi
+
+if [ "$COMMAND" == "disable" ]; then
+  exit_if_not_root
+  info "Disabling the ${NAME} service..."
+  systemctl disable --now ${SERVICE_NAME}
+  mkdir -p $DATA_FOLDER || true
+  touch $DATA_FOLDER/service-${NAME_CLEAN}-disabled
+  info "Done!"
+  exit 0
+fi
+
+if [ "$COMMAND" == "restart" ]; then
+  exit_if_not_root
+  info "Restarting the ${NAME} service..."
+  systemctl restart ${SERVICE_NAME}
+  info "Done!"
+  exit 0
+fi
+
+if [ "$COMMAND" == "run" ]; then
+  # This can run even without root
+  info "Running the ${NAME} service..."
+  while true; do
+    info "This would normally be overridden by a service-specific run command. Sleeping for 30 minutes..."
+    sleep 1800
+  done
+  info "Done!"
+  exit 0
+fi
+
+if [ "$COMMAND" == "status" ]; then
+  # This can run even without root
+  info "Status of the ${NAME} service..."
+  systemctl status ${SERVICE_NAME}
+  info "Done!"
+  exit 0
+fi
+
+if [ "$COMMAND" == "logs" ]; then
+  # This can run even without root
+  info "Running: journalctl -u ${SERVICE_NAME} -f -n $LOG_LINES"
+  info "Displaying the last $LOG_LINES lines and following the logs for ${SERVICE_NAME}:"
+  journalctl -u ${SERVICE_NAME} -f -n $LOG_LINES
+  exit 0
+fi
+
+# For non-podman container scripts, this is not usually needed, 
+# and as such the script has usually exited before this next line
+ensure_is_user $TARGET_UID $TARGET_USER
+
+# Commands which REQUIREs to run as non-root should go in the below two files
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/prepare-user.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/prepare-user.sh
+fi
+
+if [ -s "/data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh" ]; then
+    source /data/core/integrations/user/{{manifest.name}}/lib/user-commands.sh
+fi
+

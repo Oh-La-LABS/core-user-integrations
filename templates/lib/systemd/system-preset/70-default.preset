@@ -1,0 +1,2 @@
+# By default, don't start cui-{{manifest.name}}
+disable cui-{{manifest.name}}.service

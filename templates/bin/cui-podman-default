@@ -88,10 +88,12 @@ INTEGRATION_COPY_OWNERS=()
 ####################
 # Service settings #
 ####################
-# These settings are used to generate the systemd unit file, a task not usually done dynamically, making chages here will have no effect.
+# These settings are used to generate the systemd unit file, a task NOT performed 
+# based on the data here, making changes here will have no effect. The systemd
+# file is generated from the manifest.json5 content.
 UPDATE_BEFORE_START={{manifest.systemd.update_before_start|lower}}
-SYSTEMD_ADDITIONAL_AFTER="{{manifest.systemd.systemd_additional_after}}"
-SYSTEMD_ADDITIONAL_BEFORE="{{manifest.systemd.systemd_additional_before}}"
+SYSTEMD_ADDITIONAL_AFTER="{{manifest.systemd.systemd_additional_after|safe}}"
+SYSTEMD_ADDITIONAL_BEFORE="{{manifest.systemd.systemd_additional_before|safe}}"
 # Possible values: always, on-failure, on-success
 # Always will allow a container, such as z2m, to do a restart and come back...
 SYSTEMD_RESTART="{{manifest.systemd.systemd_restart}}"
@@ -99,9 +101,9 @@ SYSTEMD_RESTART_SEC={{manifest.systemd.systemd_restart_sec}}
 SYSTEMD_TIMEOUT_STOP_SEC={{manifest.systemd.systemd_timeout_stop_sec}}
 SYSTEMD_TIMEOUT_START_SEC={{manifest.systemd.systemd_timeout_start_sec}}
 # ExecStartPost example: +-systemctl restart podman-grafana-configure
-SYSTEMD_EXEC_START_PRE="{{manifest.systemd.systemd_exec_start_pre}}"
-SYSTEMD_EXEC_START_POST="{{manifest.systemd.systemd_exec_start_post}}"
-SYSTEMD_EXEC_STOP_POST="{{manifest.systemd.systemd_exec_stop_post}}"
+SYSTEMD_EXEC_START_PRE="{{manifest.systemd.systemd_exec_start_pre|safe}}"
+SYSTEMD_EXEC_START_POST="{{manifest.systemd.systemd_exec_start_post|safe}}"
+SYSTEMD_EXEC_STOP_POST="{{manifest.systemd.systemd_exec_stop_post|safe}}"
 PODMAN_TIMEOUT_STOP_SEC={{manifest.systemd.podman_timeout_stop_sec}}
 
 ###################

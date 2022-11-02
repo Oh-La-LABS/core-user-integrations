@@ -1,0 +1,54 @@
+{% if 'default' == manifest.home %}{% 
+  if 'root' == manifest.target_user %}{% 
+    set home = "/etc/core/" + manifest.name %}{% 
+  else %}{% 
+    set home = "/home/" + manifest.target_user %}{% 
+  endif 
+%}{% 
+else %}{% 
+set home = manifest.home %}{% 
+endif 
+%}[Unit]
+Description={{manifest.name_pretty}} (CORE)
+Requires=init-oll-user.service
+ConditionPathExists=/etc/emmc
+ConditionPathExists=!{{home}}/cui-{{manifest.name}}-disabled
+Wants=sso.target
+After=sso.target {{manifest.systemd.systemd_additional_after}}
+{% if manifest.systemd.systemd_additional_before != '' %}
+Before={{manifest.systemd.systemd_additional_before}}
+{% endif %}
+[Service]
+User={{manifest.target_user}}
+Group={{manifest.target_user}}
+
+# Enabling NotifyAccess seems to block container access indefinitely, Type=notify implicitly enables
+# NotifyAcess=main and has the same effect
+
+SyslogIdentifier=cui-{{manifest.name}}
+Restart={{manifest.systemd.systemd_restart}}
+# For things which has a DB, give them more time...
+TimeoutStopSec={{manifest.systemd.systemd_timeout_stop_sec}}
+TimeoutStartSec={{manifest.systemd.systemd_timeout_start_sec}}
+RestartSec={{manifest.systemd.systemd_restart_sec}}
+
+# To have working logs, set delegate to yes
+Delegate=yes
+{% if manifest.systemd.update_before_start %}
+ExecStartPre=+{{installer.install_type_path}}/bin/cui-{{manifest.name}} --update
+{% endif %}
+ExecStartPre=+-{{installer.install_type_path}}/bin/cui-{{manifest.name}} --prepare
+{% if manifest.systemd.systemd_exec_start_pre != '' %}
+ExecStartPre={{manifest.systemd.systemd_exec_start_pre}}
+{% endif %}
+# Don't use notify! It hangs podman ps and such!
+# Type=notify
+# ExecStart={{installer.install_type_path}}/bin/cui-{{manifest.name}} --run notify
+# ExecStopPost=/usr/bin/systemd-notify --status=stopped
+
+# Simple works for these types of services, in general
+Type=simple
+ExecStart={{installer.install_type_path}}/bin/cui-{{manifest.name}} --run
+
+[Install]
+WantedBy=multi-user.target default.target
