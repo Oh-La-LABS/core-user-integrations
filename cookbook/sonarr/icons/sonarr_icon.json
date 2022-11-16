@@ -1,0 +1,16 @@
+{
+    "name": "sonarr",
+    "license": {
+        "title": "GPLv3",
+        "spdx": "GPL-3.0",
+        "url": "https://github.com/Sonarr/Sonarr/blob/develop/LICENSE.md"
+    },
+    "author": {
+        "name": "Team Sonarr",
+        "url": "https://sonarr.tv"
+    },
+    "github_repo": "https://github.com/Sonarr/Sonarr",
+    "url": "https://github.com/Sonarr/Sonarr/blob/develop/Logo/Sonarr.svg",
+    "modified": true,
+    "minimum_height": 16
+}

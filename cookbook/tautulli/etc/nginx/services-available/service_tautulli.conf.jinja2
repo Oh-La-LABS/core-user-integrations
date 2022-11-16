@@ -1,4 +1,7 @@
 location {{manifest.nginx.ui_url}}  {
+    set $service_unit "podman-{{manifest.container.name}}";
+    set $service_name_pretty "{{manifest.name_pretty}}";
+
     # rewrite '^{{manifest.nginx.ui_url}}(/.*)$' $1 break;
     proxy_pass http://127.0.0.1:{{manifest.container.http_port}};
     # proxy_set_header Host $host;

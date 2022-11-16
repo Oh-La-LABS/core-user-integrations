@@ -1,0 +1,16 @@
+{
+    "name": "overseerr",
+    "license": {
+        "title": "MIT",
+        "spdx": "MIT",
+        "url": "https://github.com/sct/overseerr/blob/develop/LICENSE"
+    },
+    "author": {
+        "name": "sct",
+        "url": "https://sct.dev"
+    },
+    "github_repo": "https://github.com/sct/overseerr",
+    "url": "https://github.com/sct/overseerr/blob/develop/public/os_icon.svg",
+    "modified": true,
+    "minimum_height": 16
+}

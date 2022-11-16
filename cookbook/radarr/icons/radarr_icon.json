@@ -1,0 +1,16 @@
+{
+    "name": "radarr",
+    "license": {
+        "title": "GPLv3",
+        "spdx": "GPL-3.0",
+        "url": "https://github.com/Radarr/Radarr/blob/develop/LICENSE"
+    },
+    "author": {
+        "name": "Team Radarr",
+        "url": "https://radarr.video"
+    },
+    "github_repo": "https://github.com/Radarr/Radarr",
+    "url": "https://github.com/Radarr/Radarr/blob/develop/Logo/Radarr.svg",
+    "modified": true,
+    "minimum_height": 16
+}

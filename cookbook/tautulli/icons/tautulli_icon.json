@@ -1,0 +1,16 @@
+{
+    "name": "tautulli",
+    "license": {
+        "title": "GPLv3",
+        "spdx": "GPL-3.0",
+        "url": "https://github.com/Tautulli/Tautulli/blob/master/LICENSE"
+    },
+    "author": {
+        "name": "Tautulli",
+        "url": "https://tautulli.com"
+    },
+    "github_repo": "https://github.com/Tautulli/Tautulli",
+    "url": "https://github.com/Tautulli/Tautulli/blob/master/data/interfaces/default/images/logo.svg",
+    "modified": true,
+    "minimum_height": 16
+}

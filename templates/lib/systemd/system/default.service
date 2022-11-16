@@ -32,8 +32,6 @@ TimeoutStopSec={{manifest.systemd.systemd_timeout_stop_sec}}
 TimeoutStartSec={{manifest.systemd.systemd_timeout_start_sec}}
 RestartSec={{manifest.systemd.systemd_restart_sec}}
 
-# To have working logs, set delegate to yes
-Delegate=yes
 {% if manifest.systemd.update_before_start %}
 ExecStartPre=+{{installer.install_type_path}}/bin/cui-{{manifest.name}} --update
 {% endif %}
