@@ -1,0 +1,16 @@
+{
+    "name": "{{manifest.name}}",
+    "license": {
+        "title": "MIT",
+        "spdx": "MIT",
+        "url": "https://github.com/githubuser/reponame/blob/master/LICENSE"
+    },
+    "author": {
+        "name": "Icon Creator Name",
+        "url": "https://github.com/icon-creator-page"
+    },
+    "github_repo": "https://github.com/githubuser/reponame",
+    "url": "https://github.com/githubuser/reponame/blob/master/static/favicons/safari-pinned-tab.svg",
+    "modified": true,
+    "minimum_height": 16
+}
